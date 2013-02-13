@@ -1,6 +1,6 @@
 [test]
 # If your host isn't 'localhost', you'll need to change the connection
-# string in DBConenction.inc to 'mysql:host=example', due to a PHP bug
+# string in DBConnection.inc to 'mysql:host=example', due to a PHP bug
 host=localhost
 database=test
 user=test
