@@ -107,7 +107,7 @@ foreach (DBTestConn::ListTables() as $table => $tableType) {
 
 	$argumentList = array();
 	printf("class %s extends DBConnection {\n", $upperName);
-	if (preg_match('/(\w+)_(\w+)/', $table, $parts)) {
+	if ($tableType != 'VIEW' && preg_match('/(\w+)_(\w+)/', $table, $parts)) {
 		$sql = 'SELECT %4$s.* FROM %1$s %2$s LEFT JOIN %3$s %4$s ON %2$s.%5$s = %4$s.%6$s WHERE %2$s.%7$s = :%7$s';
 
 		$keyData = DBTestConn::GetForeignKeys('darktrojan', $table);
