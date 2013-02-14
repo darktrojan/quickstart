@@ -16,11 +16,10 @@ class DBTestConn extends DBConnection {
 		self::RunStatement($stmt);
 		return $stmt->fetchAll();
 	}
-	static function GetForeignKeys($schema, $table) {
-		$stmt = self::CreateStatement('SELECT COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = :schema AND TABLE_NAME = :table AND REFERENCED_TABLE_NAME IS NOT NULL');
+	static function GetForeignKeys($table) {
+		$stmt = self::CreateStatement('SELECT COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME = :table AND REFERENCED_TABLE_NAME IS NOT NULL');
 		self::RunStatement(
 			$stmt, array(
-				':schema' => $schema,
 				':table' => $table
 			)
 		);
@@ -110,7 +109,7 @@ foreach (DBTestConn::ListTables() as $table => $tableType) {
 	if ($tableType != 'VIEW' && preg_match('/(\w+)_(\w+)/', $table, $parts)) {
 		$sql = 'SELECT %4$s.* FROM %1$s %2$s LEFT JOIN %3$s %4$s ON %2$s.%5$s = %4$s.%6$s WHERE %2$s.%7$s = :%7$s';
 
-		$keyData = DBTestConn::GetForeignKeys('darktrojan', $table);
+		$keyData = DBTestConn::GetForeignKeys($table);
 		$local1 = $keyData[0]['COLUMN_NAME'];
 		$table1 = $keyData[0]['REFERENCED_TABLE_NAME'];
 		$upper1 = $table1;
