@@ -310,8 +310,10 @@ foreach (DBTestConn::ListTables() as $table => $tableType) {
 				$colType = $colTypes[$param];
 				if ($colType == 'tinyint(1)')
 					$type = 'DBConnection::TYPE_BOOLEAN';
-				else if (strpos($colType, 'int(') !== false)
+				elseif (strpos($colType, 'int(') !== false)
 					$type = 'DBConnection::TYPE_INTEGER';
+				elseif ($colType == 'timestamp')
+					$type = 'DBConnection::TYPE_TIMESTAMP';
 				else
 					$type = 'DBConnection::TYPE_STRING';
 
@@ -342,7 +344,7 @@ foreach (DBTestConn::ListTables() as $table => $tableType) {
 				$colType = $colTypes[$param];
 				if ($colType == 'tinyint(1)')
 					$encodedParam = $param;
-				else if (strpos($colType, 'int(') !== false)
+				elseif ($colType == 'timestamp' || strpos($colType, 'int(') !== false)
 					$encodedParam = $param;
 				else
 					$encodedParam = 'encodeURIComponent('.$param.')';
@@ -378,7 +380,7 @@ function PrintFunction($name, $sql, $params = array(), $retValue = '$stmt->fetch
 		if ($colType == 'tinyint(1)') {
 			printf("\t\t\$%1\$s = boolCast(\$%1\$s);\n", $param);
 			$nl = true;
-		} else if (strpos($colType, 'int(') !== false) {
+		} elseif ($colType == 'timestamp' || strpos($colType, 'int(') !== false) {
 			printf("\t\t\$%1\$s = (int)\$%1\$s;\n", $param);
 			$nl = true;
 		}

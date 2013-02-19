@@ -28,6 +28,7 @@ if (preg_match('/^(\w+)(\/|%2F)(\w+)(&|=|$)/', $_SERVER['QUERY_STRING'], $match)
 			$arg = boolCast($_REQUEST[$argumentName]);
 			break;
 		case DBConnection::TYPE_INTEGER:
+		case DBConnection::TYPE_TIMESTAMP:
 			$arg = (int)($_REQUEST[$argumentName]);
 			break;
 		default:

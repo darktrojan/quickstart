@@ -8,6 +8,7 @@ abstract class DBConnection {
 	const TYPE_BOOLEAN = 'boolean';
 	const TYPE_INTEGER = 'integer';
 	const TYPE_STRING = 'string';
+	const TYPE_TIMESTAMP = 'timestamp';
 
 	private static $connection = null;
 	private static $statementCache = array();
