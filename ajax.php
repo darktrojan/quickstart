@@ -65,14 +65,23 @@ if (!LIVE && preg_match('/^(\w+)$/', $_SERVER['QUERY_STRING'], $match)) {
 						'<tr><th>%s</th><td>%s</td><td>',
 						$argumentName, $argumentType
 					);
-					if ($argumentType == DBConnection::TYPE_BOOLEAN) {
+					switch ($argumentType) {
+					case DBConnection::TYPE_BOOLEAN:
 						printf(
 							'<label><input type="radio" name="%1$s" value="true" /> True</label> '.
 							'<label><input type="radio" name="%1$s" value="false" /> False</label>',
 							$argumentName
 						);
-					} else {
+						break;
+					case DBConnection::TYPE_INTEGER:
+						printf('<input type="number" name="%s" />', $argumentName);
+						break;
+					case DBConnection::TYPE_TIMESTAMP:
+						printf('<input type="number" name="%s" /><input type="button" onclick="this.previousElementSibling.value = Math.floor(Date.now() / 1000);" value="Now" />', $argumentName);
+						break;
+					default:
 						printf('<input type="text" name="%s" />', $argumentName);
+						break;
 					}
 					echo '</td></tr>';
 				}
