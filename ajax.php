@@ -13,7 +13,7 @@ function autoloadDBClass($className) {
 if (preg_match('/^(\w+)(\/|%2F)(\w+)(&|=|$)/', $_SERVER['QUERY_STRING'], $match)) {
 	$className = $match[1];
 	$functionName = $match[3];
-	$filepath = realpath('.')."/$className.inc";
+	$filepath = realpath('.').'/'.$className.'.inc';
 
 	header('Content-Type: application/json; charset=utf-8');
 
@@ -38,7 +38,7 @@ if (preg_match('/^(\w+)(\/|%2F)(\w+)(&|=|$)/', $_SERVER['QUERY_STRING'], $match)
 		$arguments[] = $arg;
 	}
 
-	$result = call_user_func_array("$className::$functionName", $arguments);
+	$result = call_user_func_array($className.'::'.$functionName, $arguments);
 
 	echo json_encode($result);
 	exit;
@@ -46,18 +46,18 @@ if (preg_match('/^(\w+)(\/|%2F)(\w+)(&|=|$)/', $_SERVER['QUERY_STRING'], $match)
 
 if (!LIVE && preg_match('/^(\w+)$/', $_SERVER['QUERY_STRING'], $match)) {
 	$className = $match[1];
-	$filepath = realpath('.')."/$className.inc";
+	$filepath = realpath('.').'/'.$className.'.inc';
 
 	if (!file_exists($filepath)) {
 		require_once '404.php';
 	}
 
-	echo "<h1>$className</h1>";
+	printf('<h1>%s</h1>', $className);
 	foreach (get_class_methods($className) as $functionName) {
 		if ($functionName != 'ArgumentList') {
 			$argumentList = $className::ArgumentList($functionName);
 			if (sizeof($argumentList)) {
-				echo "<h2>$functionName</h2>";
+				printf('<h2>%s</h2>', $functionName);
 				printf('<form action="?%s/%s" method="post">', $className, $functionName);
 				echo '<table>';
 				foreach ($argumentList as $argumentName => $argumentType) {
