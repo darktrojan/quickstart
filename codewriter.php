@@ -83,9 +83,11 @@ foreach (DBTestConn::ListTables() as $table => $tableType) {
 	$upperName = preg_replace_callback('/_[a-z]/', 'camelCase', $upperName);
 
 	$columns = DBTestConn::Describe($table);
+	$colNames = array();
 	$colTypes = array();
 	foreach ($columns as $column) {
 		$colName = $column['Field'];
+		$colNames[] = $colName;
 		$colTypes[$colName] = $column['Type'];
 	}
 
@@ -110,6 +112,10 @@ foreach (DBTestConn::ListTables() as $table => $tableType) {
 		$sql = 'SELECT %4$s.* FROM %1$s %2$s LEFT JOIN %3$s %4$s ON %2$s.%5$s = %4$s.%6$s WHERE %2$s.%7$s = :%7$s';
 
 		$keyData = DBTestConn::GetForeignKeys($table);
+		if (sizeof($keyData) < 2) {
+			trigger_error('Not enough foreign keys', E_USER_ERROR);
+		}
+		usort($keyData, 'sortKeys');
 		$local1 = $keyData[0]['COLUMN_NAME'];
 		$table1 = $keyData[0]['REFERENCED_TABLE_NAME'];
 		$upper1 = $table1;
@@ -203,7 +209,7 @@ foreach (DBTestConn::ListTables() as $table => $tableType) {
 				$updateSetters[] = $match;
 				$updateParams[] = $colName;
 			}
-			if ($column['Extra'] != 'auto_increment') {
+			if ($column['Default'] == null && $column['Extra'] != 'auto_increment') {
 				$insertColNames[] = $colName;
 				$insertColValues[] = $value;
 			}
@@ -403,4 +409,9 @@ function PrintFunction($name, $sql, $params = array(), $retValue = '$stmt->fetch
 
 function camelCase($match) {
 	return strtoupper($match[0][1]);
+}
+
+function sortKeys($a, $b) {
+	global $colNames;
+	return array_search($a['COLUMN_NAME'], $colNames) - array_search($b['COLUMN_NAME'], $colNames);
 }
