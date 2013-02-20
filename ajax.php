@@ -87,6 +87,37 @@ if (!LIVE && preg_match('/^(\w+)$/', $_SERVER['QUERY_STRING'], $match)) {
 				}
 				echo '<tr><td colspan="3" align="right"><input type="submit" value="Go" /></td></tr>';
 				echo '</table></form>';
+				echo '<pre style="tab-size: 4; -moz-tab-size: 4;">';
+				printf("function %s(%s) {\n", $functionName, implode(', ', array_keys($argumentList)));
+				echo "\tvar data =\n";
+				$format = "\t\t'%s=' + %s +\n";
+				$i = 0;
+				$iCount = sizeof($argumentList);
+				foreach ($argumentList as $argumentName => $argumentType) {
+					switch ($argumentType) {
+					case DBConnection::TYPE_BOOLEAN:
+					case DBConnection::TYPE_INTEGER:
+					case DBConnection::TYPE_TIMESTAMP:
+						$encodedParam = $argumentName;
+						break;
+					default:
+						$encodedParam = 'encodeURIComponent('.$argumentName.')';
+						break;
+					}
+
+					if ($i == 1)
+						$format = "\t\t'&amp;".substr($format, 3);
+					if (++$i == $iCount)
+						$format = substr($format, 0, strlen($format) - 3).";\n";
+					printf($format, $argumentName, $encodedParam);
+				}
+				printf(
+					"\tXHR.post('%s%s/%s', data);\n",
+					'/ajax.php?',
+					$className, $functionName
+				);
+				echo "}\n";
+				echo '</pre>';
 			} elseif (is_array($argumentList)) {
 				printf('<h2><a href="?%1$s/%2$s">%2$s</a></h2>', $className, $functionName);
 			}

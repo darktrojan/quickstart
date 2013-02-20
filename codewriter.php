@@ -389,6 +389,8 @@ foreach (DBTestConn::ListTables() as $table => $tableType) {
 				else
 					$encodedParam = 'encodeURIComponent('.$param.')';
 
+				if ($i == 1)
+					$format = "\t\t'&amp;".substr($format, 3);
 				if ($i == $iCount)
 					$format = substr($format, 0, strlen($format) - 3).";\n";
 				printf($format, $param, $encodedParam);
