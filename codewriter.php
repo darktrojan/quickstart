@@ -92,6 +92,43 @@ foreach (DBTestConn::ListTables() as $table => $tableType) {
 	}
 
 	printf('<h2>%s</h2>', $table);
+	if (in_array('insert', $operation) || in_array('update', $operation)) {
+		echo '<form>';
+		echo '<input type="hidden" name="table" value="'.$_GET['table'].'" />';
+		foreach ($operation as $op) {
+			echo '<input type="hidden" name="op[]" value="'.$op.'" />';
+		}
+		if (in_array('insert', $operation)) {
+			echo 'Columns for insert: ';
+			foreach ($columns as $column) {
+				if (!hasDefault($column)) {
+					$checked = !isset($_GET['i_cols']) || in_array($column['Field'], $_GET['i_cols']);
+					printf(
+						'<label><input type="checkbox" name="i_cols[]" value="%1$s"%2$s />%1$s</label>',
+						$column['Field'], $checked ? ' checked=""' : ''
+					);
+				}
+			}
+			if (in_array('update', $operation)) {
+				echo '<br />';
+			}
+		}
+		if (in_array('update', $operation)) {
+			echo 'Columns for update: ';
+			foreach ($columns as $column) {
+				if ($column['Key'] != 'PRI') {
+					$checked = !isset($_GET['u_cols']) || in_array($column['Field'], $_GET['u_cols']);
+					printf(
+						'<label><input type="checkbox" name="u_cols[]" value="%1$s"%2$s />%1$s</label>',
+						$column['Field'], $checked ? ' checked=""' : ''
+					);
+				}
+			}
+		}
+		echo ' <input type="submit" value="Go" />';
+		echo '</form>';
+	}
+
 	echo '<button onclick="select(0);">Select PHP</button>';
 	echo '<button onclick="select(1);">Select JS</button>';
 	echo '<script>';
@@ -206,10 +243,13 @@ foreach (DBTestConn::ListTables() as $table => $tableType) {
 				$primaryKeyParams[] = $colName;
 			} else {
 				$selectOneColNames[] = $select;
-				$updateSetters[] = $match;
-				$updateParams[] = $colName;
+				if (!isset($_GET['u_cols']) || in_array($colName, $_GET['u_cols'])) {
+					$updateSetters[] = $match;
+					$updateParams[] = $colName;
+				}
 			}
-			if ($column['Default'] == null && $column['Extra'] != 'auto_increment') {
+			if (!hasDefault($column) &&
+					(!isset($_GET['i_cols']) || in_array($colName, $_GET['i_cols']))) {
 				$insertColNames[] = $colName;
 				$insertColValues[] = $value;
 			}
@@ -416,4 +456,8 @@ function camelCase($match) {
 function sortKeys($a, $b) {
 	global $colNames;
 	return array_search($a['COLUMN_NAME'], $colNames) - array_search($b['COLUMN_NAME'], $colNames);
+}
+
+function hasDefault($column) {
+	return $column['Default'] != null || $column['Extra'] == 'auto_increment';
 }
